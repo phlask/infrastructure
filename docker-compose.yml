@@ -1,0 +1,9 @@
+version: '3'
+services:
+  shell:
+    image: hashicorp/terraform:1.0.11
+    stdin_open: true
+    working_dir: /usr/src/app
+    entrypoint: /bin/sh
+    volumes:
+    - ".:/usr/src/app"

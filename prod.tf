@@ -1,16 +1,16 @@
 module "prod_site" {
   source = "./modules/phlask-baseline-resources"
 
-  env_name               = "prod"
+  env_name = "prod"
   default_cache_behavior = {
     default_ttl = 300
     max_ttl     = 600
 
     function_association = [
-        {
-            event_type     = "viewer-request"
-            function_arn   = aws_cloudfront_function.www_redirect.arn
-        }
+      {
+        event_type   = "viewer-request"
+        function_arn = aws_cloudfront_function.www_redirect.arn
+      }
     ]
   }
   ordered_cache_behavior = [
@@ -19,7 +19,7 @@ module "prod_site" {
       allowed_methods = ["GET", "HEAD"]
       cached_methods  = ["GET", "HEAD"]
       cache_policy_id = data.aws_cloudfront_cache_policy.caching_optimized.id
-      
+
       lambda_function_association = [
         {
           event_type   = "viewer-request"
@@ -30,12 +30,12 @@ module "prod_site" {
     }
   ]
 
-  common_domain          = var.common_domain
-  additional_aliases     = ["www.${var.common_domain}"]
+  common_domain      = var.common_domain
+  additional_aliases = ["www.${var.common_domain}"]
 
   providers = {
     aws.us-east-1 = aws.us-east-1
-   }
+  }
 }
 
 resource "aws_cloudfront_function" "www_redirect" {

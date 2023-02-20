@@ -47,10 +47,10 @@ resource "aws_iam_role_policy" "test_page_list" {
           "s3:GetObject",
           "s3:ListBucket",
         ]
-        Effect   = "Allow"
+        Effect = "Allow"
         Resource = [
-            "arn:aws:s3:::test.${var.common_domain}/*",
-            "arn:aws:s3:::test.${var.common_domain}"
+          "arn:aws:s3:::test.${var.common_domain}/*",
+          "arn:aws:s3:::test.${var.common_domain}"
         ]
       },
     ]
@@ -58,9 +58,9 @@ resource "aws_iam_role_policy" "test_page_list" {
 }
 
 resource "aws_iam_policy" "test_page_list_dynamodb_access" {
-  name        = "DynamoDBAccess"
-  path        = "/"
-#   description = "My test policy"
+  name = "DynamoDBAccess"
+  path = "/"
+  #   description = "My test policy"
 
   # Terraform's "jsonencode" function converts a
   # Terraform expression result to valid JSON syntax.
@@ -68,21 +68,21 @@ resource "aws_iam_policy" "test_page_list_dynamodb_access" {
     Version = "2012-10-17"
     Statement = [
       {
-        Action = "dynamodb:ListTables"
+        Action   = "dynamodb:ListTables"
         Effect   = "Allow"
         Resource = "*"
       },
       {
         Action = [
-            "dynamodb:DescribeTable",
-            "dynamodb:GetItem",
-            "dynamodb:Scan",
-            "dynamodb:Query"
+          "dynamodb:DescribeTable",
+          "dynamodb:GetItem",
+          "dynamodb:Scan",
+          "dynamodb:Query"
         ]
-        Effect   = "Allow"
+        Effect = "Allow"
         Resource = [
-            "arn:aws:dynamodb:*:${data.aws_caller_identity.current.account_id}:table/test-page-list/index/*",
-            "arn:aws:dynamodb:*:${data.aws_caller_identity.current.account_id}:table/test-page-list"
+          "arn:aws:dynamodb:*:${data.aws_caller_identity.current.account_id}:table/test-page-list/index/*",
+          "arn:aws:dynamodb:*:${data.aws_caller_identity.current.account_id}:table/test-page-list"
         ]
       },
     ]
@@ -137,7 +137,7 @@ resource "aws_dynamodb_table" "test_page_list" {
 
   ttl {
     attribute_name = "expirationTime"
-    enabled         = true
+    enabled        = true
   }
 
   tags = {

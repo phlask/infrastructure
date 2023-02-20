@@ -3,7 +3,7 @@
 module "test_site" {
   source = "./modules/phlask-baseline-resources"
 
-  env_name               = "test"
+  env_name = "test"
   custom_error_response = [
     {
       error_caching_min_ttl = 10
@@ -32,13 +32,13 @@ module "test_site" {
       forwarded_values = [
         {
           headers = []
-          
+
           cookies = {
             forward = "none"
           }
         }
       ]
-      
+
       lambda_function_association = [
         {
           event_type   = "viewer-request"
@@ -54,13 +54,13 @@ module "test_site" {
       forwarded_values = [
         {
           headers = []
-          
+
           cookies = {
             forward = "none"
           }
         }
       ]
-      
+
       lambda_function_association = [
         {
           event_type   = "viewer-request"
@@ -74,7 +74,7 @@ module "test_site" {
       allowed_methods = ["GET", "HEAD"]
       cached_methods  = ["GET", "HEAD"]
       cache_policy_id = data.aws_cloudfront_cache_policy.caching_optimized.id
-      
+
       lambda_function_association = [
         {
           event_type   = "viewer-request"
@@ -95,13 +95,13 @@ module "test_site" {
     }
   ]
 
-  common_domain          = var.common_domain
+  common_domain = var.common_domain
 
   providers = {
     aws.us-east-1 = aws.us-east-1
-   }
+  }
 }
 
 # resource "aws_lambda_function" "test_page_redirect" {
-    
+
 # }

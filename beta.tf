@@ -1,7 +1,7 @@
 module "beta_site" {
   source = "./modules/phlask-baseline-resources"
 
-  env_name               = "beta"
+  env_name = "beta"
   default_cache_behavior = {
     default_ttl = 300
     max_ttl     = 600
@@ -12,7 +12,7 @@ module "beta_site" {
       allowed_methods = ["GET", "HEAD"]
       cached_methods  = ["GET", "HEAD"]
       cache_policy_id = data.aws_cloudfront_cache_policy.caching_optimized.id
-      
+
       lambda_function_association = [
         {
           event_type   = "viewer-request"
@@ -23,9 +23,9 @@ module "beta_site" {
     }
   ]
 
-  common_domain          = var.common_domain
+  common_domain = var.common_domain
 
   providers = {
     aws.us-east-1 = aws.us-east-1
-   }
+  }
 }

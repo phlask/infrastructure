@@ -23,7 +23,7 @@ EOF
 
 data "aws_iam_policy" "AWSLambdaBasicExecutionRole" {
   path_prefix = "/service-role/"
-  name = "AWSLambdaBasicExecutionRole"
+  name        = "AWSLambdaBasicExecutionRole"
 }
 
 resource "aws_iam_role_policy_attachment" "image_submission_handler" {
@@ -59,10 +59,10 @@ resource "aws_iam_role_policy" "image_submission_handler" {
           "s3:GetBucketLocation",
           "s3:ListMultipartUploadParts",
         ]
-        Effect   = "Allow"
+        Effect = "Allow"
         Resource = [
-            aws_s3_bucket.images.arn,
-            "${aws_s3_bucket.images.arn}/*"
+          aws_s3_bucket.images.arn,
+          "${aws_s3_bucket.images.arn}/*"
         ]
       },
     ]
@@ -90,6 +90,6 @@ resource "aws_lambda_function" "image_submission_handler" {
   runtime = "nodejs12.x"
 
   tags = {
-      Terraform = true
+    Terraform = true
   }
 }

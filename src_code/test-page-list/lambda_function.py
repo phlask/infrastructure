@@ -75,11 +75,11 @@ def lambda_handler(event, context):
             continue
         timestamp = time.strftime("%a, %d %b %Y %H:%M:%S", time.localtime(int(item['timeCreated'])))
         
-        testResult = getTestResult(item['gitHash'])
+        testResult = getTestResult(item['lighthouseTestAvailable'])
         if not item.get('gistID'):
             lighthouseResult = "N/A"
         else:
-            lighthouseResult = "<a href=\"https://googlechrome.github.io/lighthouse/viewer/?gist={}\">Click Here</a>".format(item['gistID'])
+            lighthouseResult = "<a href=\"https://test.phlask.me/{}/testResults/lighthouse_result.html\">Click Here</a>".format(item['gitHash'])
     
         rows = rows + """
             <tr>

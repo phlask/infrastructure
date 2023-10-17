@@ -29,3 +29,15 @@ module "beta_site" {
     aws.us-east-1 = aws.us-east-1
   }
 }
+
+module "storybook_beta_site" {
+  source = "./modules/storybook-resources"
+
+  env_name = "beta"
+
+  common_domain = var.common_domain
+
+  providers = {
+    aws = aws.us-east-1
+  }
+}

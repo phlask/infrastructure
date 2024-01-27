@@ -16,7 +16,7 @@ resource "aws_lambda_function" "test_results_display" {
 
   source_code_hash = filebase64sha256(data.archive_file.test_results_display.output_path)
 
-  runtime = "python3.7"
+  runtime = "python3.12"
 
   tags = {
     Terraform = true

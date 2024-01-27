@@ -1,0 +1,20 @@
+{
+    "Records": [
+        {
+            "cf": {
+                "request": {
+                    "headers": {
+                        "host": [
+                            {
+                                "key": "Host",
+                                "value": "phlask.me"
+                            }
+                        ]
+                    },
+                    "method": "GET",
+                    "querystring": "type=image/png"
+                }
+            }
+        }
+    ]
+}

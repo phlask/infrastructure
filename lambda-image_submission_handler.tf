@@ -87,7 +87,7 @@ resource "aws_lambda_function" "image_submission_handler" {
 
   source_code_hash = filebase64sha256(data.archive_file.image_submission_handler.output_path)
 
-  runtime = "nodejs12.x"
+  runtime = "nodejs20.x"
 
   tags = {
     Terraform = true

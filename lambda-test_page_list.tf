@@ -112,7 +112,7 @@ resource "aws_lambda_function" "test_page_list" {
 
   source_code_hash = filebase64sha256(data.archive_file.test_page_list.output_path)
 
-  runtime = "python3.7"
+  runtime = "python3.12"
 
   timeout = 5
 

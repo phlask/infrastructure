@@ -3,13 +3,14 @@ const uuid = require('uuid');
 const querystring = require('querystring');
 
 const bucket = "phlask-tap-images"
-const AWS = require("aws-sdk")
-var s3 = new AWS.S3({
-	    signatureVersion: 'v4',
-	    region: 'us-east-2'
+const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
+const { PutObjectCommand, S3 } = require('@aws-sdk/client-s3');
+
+var s3 = new S3({
+        region: 'us-east-2'
 });
 
-exports.handler = (event, context, callback) => {
+exports.handler = async(event, context, callback) => {
 	    console.log(JSON.stringify(event, null, 4));
 	    const request = event.Records[0].cf.request;
 	    
@@ -34,19 +35,6 @@ exports.handler = (event, context, callback) => {
 		            var imageID = uuid.v4();
 		            
 		            var prefix = ''
-		            /* TODO: Update the method to get the host header based on the following request content
-		            {
-				    
-	                "request": {
-	                    "clientIp": "173.62.214.14",
-	                    "headers": {
-	                        "host": [
-	                            {
-	                                "key": "Host",
-	                                "value": "beta.phlask.me"
-	                            }
-	                        ],
-		            */
 		            var hostname = request.headers.host[0].value
 		            if (hostname == "test.phlask.me") {
 		            	prefix = 'test/'
@@ -58,7 +46,7 @@ exports.handler = (event, context, callback) => {
 		            	prefix = 'prod/'
 		            }
 		            else {
-		            	console.log('The request header was invalid: ', request.headers.host.value)
+		            	console.log('The request header was invalid: ', request.headers.host[0].value)
 		            	return callback(null, {
 				            body: JSON.stringify({}),
 				            status: '400',
@@ -69,7 +57,6 @@ exports.handler = (event, context, callback) => {
 		            var putParams = {
 		                Bucket: bucket,
 		                Key: prefix + 'tap-images/' + imageID + '.' + type,
-		                Expires: 300
 		            };
 		            
 		            // var getParams = {
@@ -77,7 +64,9 @@ exports.handler = (event, context, callback) => {
 		            //     Key: imageID + '.' + type
 		            // };
 		            
-		            var putURL = s3.getSignedUrl('putObject', putParams)
+					var putURL = await getSignedUrl(s3, new PutObjectCommand(putParams), {
+						expiresIn: 300
+					})
 		            /* TODO: Adjust the GET URL to allow getting images at the expected endpoint */
 		            // var getURL = s3.getSignedUrl('getObject', getParams)
 		            const getURL = imageID + '.' + type

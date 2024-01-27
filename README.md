@@ -31,3 +31,9 @@ This file is to store [Terraform Locals](https://developer.hashicorp.com/terrafo
 
 ### provider
 Configures any [Terraform Providers](https://developer.hashicorp.com/terraform/language/providers) which are the core modules that allow our Terraform code to interact with the systems that Terraform is intended to manage (ex - AWS).
+
+## Project Maintenance
+### Updating Terraform lockfile
+Ocasionally the Terraform lockfile will need to be updated to ensure we are using the latest version of each provider. To do this locally:
+- With a local copy of Terraform: `terraform init -backend=false -upgrade`
+- With Docker on MacOS, run the following from the base of this project: `docker run -v $(pwd):/usr/local/src -it --workdir /usr/local/src hashicorp/terraform:1.3.5 init -backend=false -upgrade`

@@ -44,7 +44,7 @@ resource "aws_lambda_function" "test_page_redirect" {
 
   source_code_hash = filebase64sha256(data.archive_file.test_page_redirect.output_path)
 
-  runtime = "python3.8"
+  runtime = "python3.12"
 
   tags = {
     Terraform = true

@@ -9,10 +9,6 @@ resource "aws_acm_certificate" "phlask_site" {
   }
 }
 
-data "aws_cloudfront_origin_access_identity" "images" {
-  id = "EYLKT3B3LMJM1"
-}
-
 resource "aws_cloudfront_distribution" "phlask_site" {
   origin {
     origin_id   = local.website_origin_id
@@ -29,13 +25,10 @@ resource "aws_cloudfront_distribution" "phlask_site" {
   }
 
   origin {
-    domain_name = data.aws_s3_bucket.phlask_images.bucket_domain_name
-    origin_id   = local.images_origin_id
-    origin_path = "/${var.env_name}"
-
-    s3_origin_config {
-      origin_access_identity = data.aws_cloudfront_origin_access_identity.images.cloudfront_access_identity_path
-    }
+    domain_name              = data.aws_s3_bucket.phlask_images.bucket_regional_domain_name
+    origin_access_control_id = var.origin_access_control_id_images
+    origin_id                = local.images_origin_id
+    origin_path              = "/${var.env_name}/tap-images"
   }
 
   dynamic "custom_error_response" {
@@ -55,7 +48,7 @@ resource "aws_cloudfront_distribution" "phlask_site" {
 
   logging_config {
     include_cookies = true
-    bucket          = data.aws_s3_bucket.phlask_logs.bucket_domain_name # change to data source for a logging bucket
+    bucket          = data.aws_s3_bucket.phlask_logs.bucket_domain_name
     prefix          = "${var.env_name}/cloudfront/"
   }
 
@@ -136,6 +129,15 @@ resource "aws_cloudfront_distribution" "phlask_site" {
         content {
           event_type = lambda_function_association.value["event_type"]
           lambda_arn = lambda_function_association.value["lambda_arn"]
+        }
+      }
+
+      dynamic "function_association" {
+        for_each = try(ordered_cache_behavior.value["function_association"], [])
+
+        content {
+          event_type = function_association.value["event_type"]
+          function_arn = function_association.value["function_arn"]
         }
       }
     }

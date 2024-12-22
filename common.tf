@@ -8,8 +8,16 @@ data "aws_cloudfront_origin_request_policy" "s3_origin" {
   name = "Managed-CORS-S3Origin"
 }
 
-data "aws_cloudfront_origin_access_identity" "images" {
-  id = "EYLKT3B3LMJM1"
+resource "aws_cloudfront_origin_access_control" "images" {
+  name                              = aws_s3_bucket.images.bucket_regional_domain_name
+  description                       = "Managed by Terraform"
+  origin_access_control_origin_type = "s3"
+  signing_behavior                  = "always"
+  signing_protocol                  = "sigv4"
+}
+
+resource "aws_route53_zone" "phlask" {
+   name = "phlask.me"
 }
 
 resource "aws_s3_bucket" "images" {
@@ -27,14 +35,16 @@ resource "aws_s3_bucket_policy" "images" {
 }
 
 data "aws_iam_policy_document" "images" {
+  policy_id = "PolicyForCloudFrontPrivateContent"
+
   statement {
-    sid = "PolicyForCloudFrontPrivateContent"
+    sid = "AllowCloudFrontServicePrincipal"
 
     effect = "Allow"
 
     principals {
-      type        = "AWS"
-      identifiers = [data.aws_cloudfront_origin_access_identity.images.iam_arn]
+      type        = "Service"
+      identifiers = ["cloudfront.amazonaws.com"]
     }
 
     actions = [
@@ -44,6 +54,16 @@ data "aws_iam_policy_document" "images" {
     resources = [
       "${aws_s3_bucket.images.arn}/*",
     ]
+    
+    condition {
+      test = "StringEquals"
+      variable = "AWS:SourceArn"
+
+      values = [
+        module.prod_site.cf_distribution_arn,
+        module.beta_site.cf_distribution_arn
+      ]
+    }
   }
 }
 
@@ -116,4 +136,12 @@ resource "aws_s3_bucket_ownership_controls" "logs" {
   rule {
     object_ownership = "BucketOwnerPreferred"
   }
+}
+
+resource "aws_cloudfront_function" "image-path-cleanup" {
+  name    = "image-path-cleanup"
+  runtime = "cloudfront-js-2.0"
+  comment = "Managed by Terraform"
+  publish = true
+  code    = file("${path.module}/src_code/image-path-cleanup/function.js")
 }

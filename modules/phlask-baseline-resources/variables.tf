@@ -25,3 +25,7 @@ variable "custom_error_response" {
   type = any
   default = []
 }
+
+variable "origin_access_control_id_images" {
+  type = string
+}

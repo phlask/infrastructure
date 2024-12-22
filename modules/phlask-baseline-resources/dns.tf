@@ -1,3 +1,7 @@
+data "aws_route53_zone" "phlask" {
+  name         = "${var.common_domain}."
+}
+
 resource "aws_acm_certificate" "phlask_site" {
   provider = aws.us-east-1
 
@@ -7,6 +11,24 @@ resource "aws_acm_certificate" "phlask_site" {
   lifecycle {
     create_before_destroy = true
   }
+}
+
+resource "aws_route53_record" "phlask_site" {
+  for_each = {
+    for dvo in aws_acm_certificate.phlask_site.domain_validation_options : dvo.domain_name => {
+      name    = dvo.resource_record_name
+      record  = dvo.resource_record_value
+      type    = dvo.resource_record_type
+      zone_id = data.aws_route53_zone.phlask.zone_id
+    }
+  }
+
+  allow_overwrite = true
+  name            = each.value.name
+  records         = [each.value.record]
+  ttl             = 60
+  type            = each.value.type
+  zone_id         = each.value.zone_id
 }
 
 resource "aws_cloudfront_distribution" "phlask_site" {
@@ -158,5 +180,19 @@ resource "aws_cloudfront_distribution" "phlask_site" {
     acm_certificate_arn      = aws_acm_certificate.phlask_site.arn
     minimum_protocol_version = "TLSv1.2_2021"
     ssl_support_method       = "sni-only"
+  }
+}
+
+resource "aws_route53_record" "phlask_site_cloudfront" {
+  for_each = toset(concat(["${var.env_name == "prod" ? "phlask.me" : "${var.env_name}.${var.common_domain}"}"], var.additional_aliases))
+
+  zone_id = data.aws_route53_zone.phlask.zone_id
+  name    = each.value
+  type    = "A"
+
+  alias {
+    name                   = aws_cloudfront_distribution.phlask_site.domain_name
+    zone_id                = aws_cloudfront_distribution.phlask_site.hosted_zone_id
+    evaluate_target_health = false
   }
 }

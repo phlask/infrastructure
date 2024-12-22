@@ -2,6 +2,14 @@ variable "env_name" {
   type = string
 }
 
+variable "phlask_images_bucket_name" {
+  type = string
+}
+
+variable "phlask_logs_bucket_name" {
+  type = string
+}
+
 variable "default_cache_behavior" {
   type    = any
   default = {}

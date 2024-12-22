@@ -41,6 +41,9 @@ module "beta_site" {
 
   origin_access_control_id_images = aws_cloudfront_origin_access_control.images.id
 
+  phlask_images_bucket_name = aws_s3_bucket.images.id
+  phlask_logs_bucket_name   = aws_s3_bucket.logs.id
+
   providers = {
     aws.us-east-1 = aws.us-east-1
   }

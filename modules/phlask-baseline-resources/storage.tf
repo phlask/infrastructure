@@ -1,13 +1,9 @@
-# locals {
-#   beta_origin_id        = "S3-Website-test.${var.common_domain}.s3-website.us-east-2.amazonaws.com"
-#   beta_images_origin_id = "S3-phlask-tap-images/test"
-# }
 data "aws_s3_bucket" "phlask_images" {
-  bucket = "phlask-tap-images"
+  bucket = var.phlask_images_bucket_name
 }
 
 data "aws_s3_bucket" "phlask_logs" {
-  bucket = "phlask-logs"
+  bucket = var.phlask_logs_bucket_name
 }
 
 resource "aws_s3_bucket" "phlask_site" {

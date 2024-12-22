@@ -21,7 +21,7 @@ jobs:
         aws-region: ${{ env.AWS_DEFAULT_REGION }}
     - uses: hashicorp/setup-terraform@v2
       with:
-        terraform_version: 1.3.5
+        terraform_version: ~1.10.0
 
     - name: Terraform fmt
       id: fmt

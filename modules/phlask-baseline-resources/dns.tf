@@ -1,3 +1,7 @@
+data "aws_route53_zone" "phlask" {
+  name         = "${var.common_domain}."
+}
+
 resource "aws_acm_certificate" "phlask_site" {
   provider = aws.us-east-1
 
@@ -9,8 +13,22 @@ resource "aws_acm_certificate" "phlask_site" {
   }
 }
 
-data "aws_cloudfront_origin_access_identity" "images" {
-  id = "EYLKT3B3LMJM1"
+resource "aws_route53_record" "phlask_site" {
+  for_each = {
+    for dvo in aws_acm_certificate.phlask_site.domain_validation_options : dvo.domain_name => {
+      name    = dvo.resource_record_name
+      record  = dvo.resource_record_value
+      type    = dvo.resource_record_type
+      zone_id = data.aws_route53_zone.phlask.zone_id
+    }
+  }
+
+  allow_overwrite = true
+  name            = each.value.name
+  records         = [each.value.record]
+  ttl             = 60
+  type            = each.value.type
+  zone_id         = each.value.zone_id
 }
 
 resource "aws_cloudfront_distribution" "phlask_site" {
@@ -29,13 +47,10 @@ resource "aws_cloudfront_distribution" "phlask_site" {
   }
 
   origin {
-    domain_name = data.aws_s3_bucket.phlask_images.bucket_domain_name
-    origin_id   = local.images_origin_id
-    origin_path = "/${var.env_name}"
-
-    s3_origin_config {
-      origin_access_identity = data.aws_cloudfront_origin_access_identity.images.cloudfront_access_identity_path
-    }
+    domain_name              = data.aws_s3_bucket.phlask_images.bucket_regional_domain_name
+    origin_access_control_id = var.origin_access_control_id_images
+    origin_id                = local.images_origin_id
+    origin_path              = "/${var.env_name}/tap-images"
   }
 
   dynamic "custom_error_response" {
@@ -55,7 +70,7 @@ resource "aws_cloudfront_distribution" "phlask_site" {
 
   logging_config {
     include_cookies = true
-    bucket          = data.aws_s3_bucket.phlask_logs.bucket_domain_name # change to data source for a logging bucket
+    bucket          = data.aws_s3_bucket.phlask_logs.bucket_domain_name
     prefix          = "${var.env_name}/cloudfront/"
   }
 
@@ -138,6 +153,15 @@ resource "aws_cloudfront_distribution" "phlask_site" {
           lambda_arn = lambda_function_association.value["lambda_arn"]
         }
       }
+
+      dynamic "function_association" {
+        for_each = try(ordered_cache_behavior.value["function_association"], [])
+
+        content {
+          event_type = function_association.value["event_type"]
+          function_arn = function_association.value["function_arn"]
+        }
+      }
     }
   }
 
@@ -156,5 +180,19 @@ resource "aws_cloudfront_distribution" "phlask_site" {
     acm_certificate_arn      = aws_acm_certificate.phlask_site.arn
     minimum_protocol_version = "TLSv1.2_2021"
     ssl_support_method       = "sni-only"
+  }
+}
+
+resource "aws_route53_record" "phlask_site_cloudfront" {
+  for_each = toset(concat(["${var.env_name == "prod" ? "phlask.me" : "${var.env_name}.${var.common_domain}"}"], var.additional_aliases))
+
+  zone_id = data.aws_route53_zone.phlask.zone_id
+  name    = each.value
+  type    = "A"
+
+  alias {
+    name                   = aws_cloudfront_distribution.phlask_site.domain_name
+    zone_id                = aws_cloudfront_distribution.phlask_site.hosted_zone_id
+    evaluate_target_health = false
   }
 }

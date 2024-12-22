@@ -1,7 +1,7 @@
 version: '3'
 services:
   shell:
-    image: hashicorp/terraform:1.3.5
+    image: hashicorp/terraform:1.10
     stdin_open: true
     working_dir: /usr/src/app
     entrypoint: /bin/sh

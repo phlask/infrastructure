@@ -1,5 +1,3 @@
-# TODO: We could switch to use a aws_cloudfront_cache_policy resource to switch away from the existing legacy caching configuration
-
 module "test_site" {
   source = "./modules/phlask-baseline-resources"
 
@@ -96,12 +94,13 @@ module "test_site" {
   ]
 
   common_domain = var.common_domain
+  
+  origin_access_control_id_images = aws_cloudfront_origin_access_control.images.id
+
+  phlask_images_bucket_name = aws_s3_bucket.images.id
+  phlask_logs_bucket_name   = aws_s3_bucket.logs.id
 
   providers = {
     aws.us-east-1 = aws.us-east-1
   }
 }
-
-# resource "aws_lambda_function" "test_page_redirect" {
-
-# }

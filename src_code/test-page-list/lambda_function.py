@@ -75,7 +75,7 @@ def lambda_handler(event, context):
             continue
         timestamp = time.strftime("%a, %d %b %Y %H:%M:%S", time.localtime(int(item['timeCreated'])))
         
-        testResult = getTestResult(item['lighthouseTestAvailable'])
+        testResult = getTestResult(item.get('lighthouseTestAvailable', False))
         if not item.get('gistID'):
             lighthouseResult = "N/A"
         else:

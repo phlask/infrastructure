@@ -101,7 +101,3 @@ module "test_site" {
     aws.us-east-1 = aws.us-east-1
   }
 }
-
-# resource "aws_lambda_function" "test_page_redirect" {
-
-# }

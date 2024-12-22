@@ -57,7 +57,7 @@ module "prod_site" {
 resource "aws_cloudfront_function" "www_redirect" {
   name    = "www-redirect"
   comment = "Managed by Terraform"
-  runtime = "cloudfront-js-1.0"
+  runtime = "cloudfront-js-2.0"
   publish = true
   code    = file("${path.module}/src_code/www-redirect/function.js")
 }

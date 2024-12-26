@@ -145,3 +145,11 @@ resource "aws_cloudfront_function" "image-path-cleanup" {
   publish = true
   code    = file("${path.module}/src_code/image-path-cleanup/function.js")
 }
+
+resource "aws_cloudfront_function" "react-url-rewrite" {
+  name    = "react-url-rewrite"
+  comment = "Managed by Terraform"
+  runtime = "cloudfront-js-2.0"
+  publish = true
+  code    = file("${path.module}/src_code/react-url-rewrite/function.js")
+}

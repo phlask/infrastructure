@@ -10,18 +10,6 @@ resource "aws_s3_bucket" "phlask_site" {
   bucket = var.env_name == "prod" ? "phlask.me" : "${var.env_name}.${var.common_domain}"
 }
 
-resource "aws_s3_bucket_website_configuration" "phlask_site" {
-  bucket = aws_s3_bucket.phlask_site.bucket
-
-  index_document {
-    suffix = "index.html"
-  }
-
-  error_document {
-    key = "index.html"
-  }
-}
-
 resource "aws_s3_bucket_policy" "phlask_site" {
   bucket = aws_s3_bucket.phlask_site.id
   policy = data.aws_iam_policy_document.phlask_site.json
@@ -29,13 +17,13 @@ resource "aws_s3_bucket_policy" "phlask_site" {
 
 data "aws_iam_policy_document" "phlask_site" {
   statement {
-    sid = "PublicReadGetObject"
+    sid = "AllowCloudFrontServicePrincipalReadOnly"
 
     effect = "Allow"
 
     principals {
-      type        = "*"
-      identifiers = ["*"]
+      type        = "Service"
+      identifiers = ["cloudfront.amazonaws.com"]
     }
 
     actions = [
@@ -47,23 +35,26 @@ data "aws_iam_policy_document" "phlask_site" {
     ]
 
     condition {
-      test     = "StringLike"
-      variable = "aws:Referer"
-      values   = ["https://${var.env_name == "prod" ? "phlask.me" : "${var.env_name}.${var.common_domain}"}/*"]
+      test     = "StringEquals"
+      variable = "AWS:SourceArn"
+      values   = [aws_cloudfront_distribution.phlask_site.arn]
     }
   }
 }
 
-resource "aws_s3_bucket_acl" "phlask_site" {
+resource "aws_s3_bucket_ownership_controls" "phlask_site" {
   bucket = aws_s3_bucket.phlask_site.id
-  acl    = "public-read"
+
+  rule {
+    object_ownership = "BucketOwnerEnforced"
+  }
 }
 
 resource "aws_s3_bucket_public_access_block" "phlask_site" {
   bucket = aws_s3_bucket.phlask_site.id
 
-  block_public_acls       = false
-  block_public_policy     = false
-  ignore_public_acls      = false
-  restrict_public_buckets = false
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
 }

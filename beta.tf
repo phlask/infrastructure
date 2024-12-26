@@ -5,6 +5,13 @@ module "beta_site" {
   default_cache_behavior = {
     default_ttl = 300
     max_ttl     = 600
+
+    function_association = [
+        {
+            event_type   = "viewer-request"
+            function_arn = aws_cloudfront_function.react-url-rewrite.arn
+        }
+    ]
   }
   ordered_cache_behavior = [
     {

@@ -14,6 +14,13 @@ module "test_site" {
     default_ttl = 86400
     max_ttl     = 86400
 
+    function_association = [
+        {
+            event_type   = "viewer-request"
+            function_arn = aws_cloudfront_function.react-url-rewrite.arn
+        }
+    ]
+
     lambda_function_association = [
       {
         event_type   = "origin-response"

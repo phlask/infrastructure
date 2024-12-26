@@ -87,7 +87,7 @@ def lambda_handler(event, context):
                 <td><a href="https://github.com/phlask/phlask-map/tree/{1}">{1}</a></td>
                 <td>{2}</td>
                 <td>{3}</td>
-                <td><a href="https://test.phlask.me/{4}">Click Here</a></td>
+                <td><a href="https://test.phlask.me/{4}/">Click Here</a></td>
                 <td><a href="https://test.phlask.me/testResults/{4}">{5}</a></td>
                 <td>{6}</td>
             </tr>
